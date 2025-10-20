@@ -1,7 +1,0 @@
-just text
-
-
-npm run build
-
-npx serve -s dist --listen tcp://0.0.0.0:8080
-
