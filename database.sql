@@ -27,7 +27,3 @@ CREATE TABLE votes (
     -- Ensures a user can only vote once per idea
     UNIQUE(user_id, idea_id)
 );
-
--- Optional: Add some dummy data for testing
-INSERT INTO users (forty_two_id, username) VALUES (12345, 'testuser'), (67890, 'anotheruser');
-INSERT INTO ideas (user_id, content) VALUES (1, 'We should build a coffee-making robot for the cluster.');

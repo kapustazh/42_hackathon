@@ -1,0 +1,33 @@
+{
+  "id": null,
+  "uid": "whiteboard-dashboard",
+  "title": "Whiteboard Backend Monitoring",
+  "tags": ["whiteboard", "backend", "nodejs"],
+  "timezone": "browser",
+  "schemaVersion": 27,
+  "version": 1,
+  "refresh": "10s",
+  "annotations": {"list": []},
+  "panels": [
+    {
+      "type": "graph",
+      "title": "HTTP Request Duration",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_ms_bucket[5m])) by (le))",
+          "legendFormat": "p95"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Total Requests",
+      "targets": [
+        { "expr": "sum(rate(http_request_duration_ms_count[5m]))" }
+      ]
+    }
+  ],
+  "schemaVersion": 16,
+  "title": "Whiteboard Backend",
+  "version": 1
+}

@@ -1,0 +1,239 @@
+{
+  "id": null,
+  "uid": "whiteboard-dashboard",
+  "title": "Whiteboard Backend Monitoring",
+  "tags": ["whiteboard", "backend", "nodejs", "prometheus"],
+  "timezone": "browser",
+  "schemaVersion": 27,
+  "version": 1,
+  "refresh": "10s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "annotations": {
+    "list": []
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "graph",
+      "title": "HTTP Request Rate (req/sec)",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "rate(http_requests_total[5m])",
+          "legendFormat": "{{method}} {{route}} ({{status_code}})",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        { "format": "reqps", "label": "Requests/sec" },
+        { "format": "short" }
+      ],
+      "lines": true,
+      "fill": 1,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "legend": { "show": true, "alignAsTable": true, "avg": true, "current": true }
+    },
+    {
+      "id": 2,
+      "type": "graph",
+      "title": "HTTP Request Duration (95th Percentile)",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_ms_bucket[5m])) by (le, method, route))",
+          "legendFormat": "p95 {{method}} {{route}}",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_ms_bucket[5m])) by (le, method, route))",
+          "legendFormat": "p50 {{method}} {{route}}",
+          "refId": "B"
+        }
+      ],
+      "yaxes": [
+        { "format": "ms", "label": "Latency" },
+        { "format": "short" }
+      ],
+      "lines": true,
+      "fill": 0,
+      "linewidth": 2,
+      "legend": { "show": true, "alignAsTable": true }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "New Posts per Minute",
+      "gridPos": { "x": 0, "y": 8, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "rate(new_posts_total[1m]) * 60",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "graphMode": "area",
+        "colorMode": "value",
+        "orientation": "auto",
+        "textMode": "value_and_name",
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "posts/min",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" },
+              { "value": 5, "color": "yellow" },
+              { "value": 10, "color": "red" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "type": "piechart",
+      "title": "Vote Breakdown",
+      "gridPos": { "x": 6, "y": 8, "w": 6, "h": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(votes_total[5m])) by (vote_type)",
+          "legendFormat": "{{vote_type}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": { "displayMode": "list", "placement": "right" },
+        "pieType": "pie",
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "votes/sec"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "type": "graph",
+      "title": "Node.js Memory Usage",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "process_resident_memory_bytes / 1024 / 1024",
+          "legendFormat": "Resident Memory (MB)",
+          "refId": "A"
+        },
+        {
+          "expr": "nodejs_heap_size_used_bytes / 1024 / 1024",
+          "legendFormat": "Heap Used (MB)",
+          "refId": "B"
+        },
+        {
+          "expr": "nodejs_heap_size_total_bytes / 1024 / 1024",
+          "legendFormat": "Heap Total (MB)",
+          "refId": "C"
+        }
+      ],
+      "yaxes": [
+        { "format": "decmbytes", "label": "Memory" },
+        { "format": "short" }
+      ],
+      "lines": true,
+      "fill": 1,
+      "linewidth": 2
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Authentication Attempts (Success)",
+      "gridPos": { "x": 0, "y": 12, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "sum(rate(auth_attempts_total{status=\"success\"}[5m])) * 300",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "graphMode": "area",
+        "colorMode": "value",
+        "textMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "attempts",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "graph",
+      "title": "CPU Usage",
+      "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "rate(process_cpu_user_seconds_total[5m]) * 100",
+          "legendFormat": "User CPU %",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(process_cpu_system_seconds_total[5m]) * 100",
+          "legendFormat": "System CPU %",
+          "refId": "B"
+        }
+      ],
+      "yaxes": [
+        { "format": "percent", "label": "CPU %" },
+        { "format": "short" }
+      ],
+      "lines": true,
+      "fill": 2,
+      "linewidth": 2
+    },
+    {
+      "id": 8,
+      "type": "graph",
+      "title": "HTTP Status Codes",
+      "gridPos": { "x": 12, "y": 16, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total[5m])) by (status_code)",
+          "legendFormat": "{{status_code}}",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        { "format": "reqps", "label": "Requests/sec" },
+        { "format": "short" }
+      ],
+      "lines": true,
+      "fill": 1,
+      "linewidth": 2,
+      "legend": { "show": true, "alignAsTable": true },
+      "stack": true
+    }
+  ],
+  "templating": {
+    "list": []
+  },
+  "links": []
+}
